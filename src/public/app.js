@@ -14,7 +14,7 @@ document.getElementById('frete-form').addEventListener('submit', function(e) {
                     <strong>Estado (UF):</strong> ${data.uf}<br>
                     <strong>Cidade:</strong> ${data.localidade}<br>
                     <strong>Capital/Interior:</strong> ${data.tipo}<br>
-                    <strong>Tempo de entrega:</strong> ${data.tempo_entrega} dias<br>
+                    <strong>Prazo de entrega:</strong> ${data.tempo_entrega} dias úteis<br>
                     <strong>Frete:</strong> R$ ${data.frete.toFixed(2)}
                 `;
             }
