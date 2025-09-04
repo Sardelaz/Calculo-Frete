@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de Prazo - Azul Cargo</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+    }
+    .resultado {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 10px;
+      background: #dff0d8;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h2>Consultar Prazo de Entrega - Azul Cargo</h2>
+  <p>Digite o CEP (com ou sem traço):</p>
+  <input type="text" id="cep" maxlength="9" placeholder="Ex: 24410-240">
+  <button onclick="consultarPrazo()">Consultar</button>
+
+  <div id="resultado" class="resultado"></div>
+
+  <script>
+
+    function consultarPrazo() {
+      let cepInput = document.getElementById('cep').value;
+      cepInput = cepInput.replace(/\D/g, '');
+      const cep = parseInt(cepInput);
+
+      if (isNaN(cep)) {
+        document.getElementById('resultado').innerText = 'Digite um CEP válido';
+        return;
+      }
+
+      const faixa = dados.find(linha =>
+        cep >= linha["CEP Inicial"] && cep <= linha["CEP Final"]
+      );
+
+      if (faixa) {
+        document.getElementById('resultado').innerText =
+          `Prazo de entrega: ${faixa.Prazo} dias úteis (Cidade: ${faixa.Cidade}, UF: ${faixa.UF}, Tipo: ${faixa.Tipo})`;
+      } else {
+        document.getElementById('resultado').innerText = 'CEP não encontrado na tabela Azul Cargo.';
+      }
+    }
+  </script>
+</body>
+</html>
