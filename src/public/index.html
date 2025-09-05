@@ -1,58 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Consulta de Prazo - Azul Cargo</title>
-  <style>
-    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
-    input, button { padding: 10px; margin: 5px 0; }
-    .resultado { margin-top: 20px; font-size: 18px; padding: 10px; background: #dff0d8; border: 1px solid #ccc; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Consulta de Frete Completa</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
 </head>
 <body>
-  <h2>Consultar Prazo de Entrega - Azul Cargo</h2>
-  <p>Digite o CEP (com ou sem traço):</p>
-  <input type="text" id="cep" maxlength="9" placeholder="Ex: 24410-240">
-  <p>Digite o Peso (kg):</p>
-  <input type="text" id="peso" placeholder="Ex: 12,5">
-  <button onclick="consultarPrazo()">Consultar</button>
+    <h1>Consulta de Frete</h1>
+    <form id="freteForm">
+        <label for="cep">CEP de envio:</label>
+        <input type="text" id="cep" name="cep" required><br><br>
 
-  <div id="resultado" class="resultado"></div>
+        <label for="peso">Peso (kg):</label>
+        <input type="number" id="peso" name="peso" step="0.01" required><br><br>
 
-  <script>
-    async function consultarPrazo() {
-      const cepInput = document.getElementById('cep').value.replace(/\D/g, '');
-      const pesoStr = document.getElementById('peso').value.trim().replace(',', '.');
-      const peso = parseFloat(pesoStr);
+        <button type="submit">Consultar</button>
+    </form>
 
-      if (cepInput.length !== 8 || isNaN(peso) || peso <= 0) {
-        document.getElementById('resultado').innerText = 'Preencha todos os campos corretamente.';
-        return;
-      }
+    <h2>Resultado:</h2>
+    <div id="resultado"></div>
 
-      try {
-        const response = await fetch(`/api/calcular?cep=${cepInput}&peso=${peso}`);
-        const data = await response.json();
+    <script>
+        const form = document.getElementById('freteForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cep = document.getElementById('cep').value;
+            const peso = document.getElementById('peso').value;
 
-        if (data.error) {
-          document.getElementById('resultado').innerText = data.error;
-          return;
-        }
+            const res = await fetch('/consultarTodos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cep, peso })
+            });
+            const data = await res.json();
 
-        document.getElementById('resultado').innerHTML = `
-          <strong>Estado (UF):</strong> ${data.uf}<br>
-          <strong>Cidade:</strong> ${data.cidade}<br>
-          <strong>Capital/Interior:</strong> ${data.tipo}<br>
-          <strong>Prazo:</strong> ${data.prazo} dias úteis<br>
-          <strong>Peso informado:</strong> ${data.peso} kg<br>
-          <strong>Faixa utilizada:</strong> ${data.faixaPeso}<br>
-          <strong>Frete:</strong> R$ ${data.frete}
-        `;
-      } catch (error) {
-        document.getElementById('resultado').innerText = 'Erro ao consultar API.';
-        console.error(error);
-      }
-    }
-  </script>
+            const resultadoDiv = document.getElementById('resultado');
+            if(data.error){
+                resultadoDiv.innerHTML = `<p style="color:red">${data.error}</p>`;
+                return;
+            }
+
+            let html = `
+                <p><strong>Cidade:</strong> ${data.cidade} | <strong>UF:</strong> ${data.uf} | <strong>Tipo:</strong> ${data.tipo}</p>
+                <table>
+                    <tr>
+                        <th>Serviço</th>
+                        <th>Classificação</th>
+                        <th>Peso (kg)</th>
+                        <th>Valor (R$)</th>
+                        <th>Prazo</th>
+                    </tr>
+            `;
+
+            data.frete.forEach(f => {
+                html += `
+                    <tr>
+                        <td>${f.servico}</td>
+                        <td>${f.classificacao}</td>
+                        <td>${peso}</td>
+                        <td>${f.valor}</td>
+                        <td>${f.prazo}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</table>';
+            resultadoDiv.innerHTML = html;
+        });
+    </script>
 </body>
 </html>
