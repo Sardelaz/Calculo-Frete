@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Consulta de Frete Completa</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #eee;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
-    <h1>Consulta de Frete</h1>
-    <form id="freteForm">
-        <label for="cep">CEP de envio:</label>
-        <input type="text" id="cep" name="cep" required><br><br>
+    <div class="container">
+        <h1><i class="fas fa-shipping-fast"></i> Consulta de Frete</h1>
+        <form id="freteForm">
+            <div class="input-group">
+                <label for="cep"><i class="fas fa-map-marker-alt"></i> CEP de envio:</label>
+                <input type="text" id="cep" name="cep" required placeholder="Ex: 00000-000">
+            </div>
 
-        <label for="peso">Peso (kg):</label>
-        <input type="number" id="peso" name="peso" step="0.01" required><br><br>
+            <div class="input-group">
+                <label for="peso"><i class="fas fa-balance-scale"></i> Peso (kg):</label>
+                <input type="number" id="peso" name="peso" step="0.01" required placeholder="Ex: 1.5">
+            </div>
 
-        <button type="submit">Consultar</button>
-    </form>
+            <button type="submit"><i class="fas fa-search"></i> Consultar</button>
+        </form>
 
-    <h2>Resultado:</h2>
-    <div id="resultado"></div>
-
+        <div class="resultado-wrapper">
+            <h2><i class="fas fa-info-circle"></i> Resultado da Consulta:</h2>
+            <div id="resultado">
+            </div>
+        </div>
+    </div>
     <script>
         const form = document.getElementById('freteForm');
         form.addEventListener('submit', async (e) => {
@@ -41,46 +38,78 @@
             const cep = document.getElementById('cep').value;
             const peso = document.getElementById('peso').value;
 
-            const res = await fetch('/consultarTodos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cep, peso })
-            });
-            const data = await res.json();
-
             const resultadoDiv = document.getElementById('resultado');
-            if(data.error){
-                resultadoDiv.innerHTML = `<p style="color:red">${data.error}</p>`;
-                return;
-            }
+            resultadoDiv.innerHTML = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Consultando...</p>';
 
-            let html = `
-                <p><strong>Cidade:</strong> ${data.cidade} | <strong>UF:</strong> ${data.uf} | <strong>Tipo:</strong> ${data.tipo}</p>
-                <table>
-                    <tr>
-                        <th>Serviço</th>
-                        <th>Classificação</th>
-                        <th>Peso (kg)</th>
-                        <th>Valor (R$)</th>
-                        <th>Prazo</th>
-                    </tr>
-            `;
+            try {
+                const res = await fetch('/consultarTodos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cep, peso })
+                });
 
-            data.frete.forEach(f => {
-                html += `
-                    <tr>
-                        <td>${f.servico}</td>
-                        <td>${f.classificacao}</td>
-                        <td>${peso}</td>
-                        <td>${f.valor}</td>
-                        <td>${f.prazo}</td>
-                    </tr>
+                const data = await res.json();
+
+                // --- DIAGNÓSTICO 1: Ver a resposta completa do servidor ---
+                console.log("Resposta completa do servidor:", data);
+
+                if (data.error) {
+                    resultadoDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-triangle"></i> ${data.error}</p>`;
+                    return;
+                }
+
+                let html = `
+                    <div class="info-header-result">
+                        <p><strong>Cidade:</strong> ${data.cidade} | 
+                        <strong>UF:</strong> ${data.uf} | 
+                        <strong>Tipo:</strong> ${data.tipo}</p>
+                    </div>
+                    <div class="frete-cards">
                 `;
-            });
 
-            html += '</table>';
-            resultadoDiv.innerHTML = html;
+                data.frete.forEach(f => {
+                    // --- DIAGNÓSTICO 2: Ver cada item de frete individualmente ---
+                    console.log("Analisando item de frete:", f);
+
+                    // Lógica de tratamento de valor ainda mais robusta
+                    let valorNumerico = 0;
+
+                    // IMPORTANTE: VERIFIQUE NO CONSOLE QUAL É O NOME CORRETO DA PROPRIEDADE (ex: f.valor, f.Valor, f.price)
+                    const valorDoServidor = f.valor; // <--- PODE SER NECESSÁRIO MUDAR AQUI!
+
+                    if (valorDoServidor) {
+                        const valorTratado = String(valorDoServidor)
+                            .replace('R$', '')    // Remove o "R$" se houver
+                            .trim()               // Remove espaços em branco
+                            .replace(',', '.');   // Troca vírgula por ponto
+
+                        const parsedValor = parseFloat(valorTratado);
+                        if (!isNaN(parsedValor)) {
+                            valorNumerico = parsedValor;
+                        }
+                    }
+
+                    const valorFinalFormatado = valorNumerico.toFixed(2).replace('.', ',');
+
+                    html += `
+                        <div class="frete-card">
+                            <div class="card-item"><strong>Tipo:</strong> <span>${data.tipo}</span></div>
+                            <div class="card-item"><strong>Peso:</strong> <span>${peso} kg</span></div>
+                            <div class="card-item"><strong>Valor:</strong> <span class="valor-frete">R$ ${valorFinalFormatado}</span></div>
+                            <div class="card-item"><strong>Prazo:</strong> <span>${f.prazo} dias <i class="fas fa-clock"></i></span></div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                resultadoDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error("Erro na consulta:", error);
+                resultadoDiv.innerHTML = `<p class="error"><i class="fas fa-dizzy"></i> Ocorreu um erro inesperado na consulta. Verifique sua conexão ou tente novamente.</p>`;
+            }
         });
     </script>
 </body>
+
 </html>
