@@ -22,6 +22,11 @@
                 <input type="number" id="peso" name="peso" step="0.01" required placeholder="Ex: 1.5">
             </div>
 
+            <div class="input-group">
+                <label for="valorPedido"><i class="fas fa-shopping-cart"></i> Valor do pedido (R$):</label>
+                <input type="number" id="valorPedido" name="valorPedido" required placeholder="Valor do pedido (R$)" step="0.01">
+            </div>
+
             <button type="submit"><i class="fas fa-search"></i> Consultar</button>
         </form>
 
@@ -37,6 +42,8 @@
             e.preventDefault();
             const cep = document.getElementById('cep').value;
             const peso = document.getElementById('peso').value;
+            // **CORREÇÃO**: Captura o valor do pedido do campo correto
+            const valorPedido = document.getElementById('valorPedido').value;
 
             const resultadoDiv = document.getElementById('resultado');
             resultadoDiv.innerHTML = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Consultando...</p>';
@@ -45,13 +52,11 @@
                 const res = await fetch('/consultarTodos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cep, peso })
+                    // **CORREÇÃO**: Envia o valor do pedido no corpo da requisição
+                    body: JSON.stringify({ cep, peso, valorPedido })
                 });
 
                 const data = await res.json();
-
-                // --- DIAGNÓSTICO 1: Ver a resposta completa do servidor ---
-                console.log("Resposta completa do servidor:", data);
 
                 if (data.error) {
                     resultadoDiv.innerHTML = `<p class="error"><i class="fas fa-exclamation-triangle"></i> ${data.error}</p>`;
@@ -61,41 +66,17 @@
                 let html = `
                     <div class="info-header-result">
                         <p><strong>Cidade:</strong> ${data.cidade} | 
-                        <strong>UF:</strong> ${data.uf} | 
-                        <strong>Tipo:</strong> ${data.tipo}</p>
+                        <strong>UF:</strong> ${data.uf}</p>
                     </div>
                     <div class="frete-cards">
                 `;
 
                 data.frete.forEach(f => {
-                    // --- DIAGNÓSTICO 2: Ver cada item de frete individualmente ---
-                    console.log("Analisando item de frete:", f);
-
-                    // Lógica de tratamento de valor ainda mais robusta
-                    let valorNumerico = 0;
-
-                    // IMPORTANTE: VERIFIQUE NO CONSOLE QUAL É O NOME CORRETO DA PROPRIEDADE (ex: f.valor, f.Valor, f.price)
-                    const valorDoServidor = f.valor; // <--- PODE SER NECESSÁRIO MUDAR AQUI!
-
-                    if (valorDoServidor) {
-                        const valorTratado = String(valorDoServidor)
-                            .replace('R$', '')    // Remove o "R$" se houver
-                            .trim()               // Remove espaços em branco
-                            .replace(',', '.');   // Troca vírgula por ponto
-
-                        const parsedValor = parseFloat(valorTratado);
-                        if (!isNaN(parsedValor)) {
-                            valorNumerico = parsedValor;
-                        }
-                    }
-
-                    const valorFinalFormatado = valorNumerico.toFixed(2).replace('.', ',');
-
                     html += `
                         <div class="frete-card">
                             <div class="card-item"><strong>Tipo:</strong> <span>${data.tipo}</span></div>
                             <div class="card-item"><strong>Peso:</strong> <span>${peso} kg</span></div>
-                            <div class="card-item"><strong>Valor:</strong> <span class="valor-frete">R$ ${valorFinalFormatado}</span></div>
+                            <div class="card-item"><strong>Valor Final do Frete:</strong> <span class="valor-frete">${f.valor}</span></div>
                             <div class="card-item"><strong>Prazo:</strong> <span>${f.prazo} dias <i class="fas fa-clock"></i></span></div>
                         </div>
                     `;
@@ -106,7 +87,7 @@
 
             } catch (error) {
                 console.error("Erro na consulta:", error);
-                resultadoDiv.innerHTML = `<p class="error"><i class="fas fa-dizzy"></i> Ocorreu um erro inesperado na consulta. Verifique sua conexão ou tente novamente.</p>`;
+                resultadoDiv.innerHTML = `<p class="error"><i class="fas fa-dizzy"></i> Ocorreu um erro inesperado. Verifique o console para mais detalhes.</p>`;
             }
         });
     </script>

@@ -18,7 +18,357 @@ body {
 /* --- Container Principal --- */
 .container {
     width: 100%;
-    max-width: 700px;
+    max-width: 700px;/* Importação de fontes do Google Fonts (opcional, mas melhora a tipografia) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* --- Estilos Gerais --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #e0f2f7, #c1e4f4);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* --- Container Principal (AJUSTADO)--- */
+.container {
+    width: 100%;
+    max-width: 1100px;
+    /* Aumenta a largura para acomodar o layout lado a lado */
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Títulos --- */
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: #007bff;
+    border-radius: 2px;
+}
+
+h1 .fas {
+    color: #007bff;
+    margin-right: 10px;
+}
+
+h2 {
+    color: #34495e;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+h2 .fas {
+    color: #28a745;
+    /* Um toque de verde para info */
+    margin-right: 8px;
+}
+
+/* --- NOVO: Layout principal para as colunas --- */
+/* Este wrapper conterá o formulário e os resultados */
+.main-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px; /* Espaço entre o formulário e os resultados */
+}
+
+/* --- NOVO: Coluna do Formulário --- */
+/* Esta coluna conterá o título H2 e o formulário */
+.form-column {
+    flex: 1; /* Faz a coluna ocupar o espaço disponível */
+    min-width: 300px;
+}
+
+/* --- Formulário --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Mais espaçamento entre os campos */
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+    display: flex;
+    align-items: center;
+}
+
+label .fas {
+    margin-right: 8px;
+    color: #6c757d;
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    background-color: #f8faff;
+}
+
+button[type="submit"] {
+    padding: 14px 25px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1.15em;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+/* --- Seção de Resultados (AJUSTADA) --- */
+.resultado-wrapper {
+    flex: 1; /* Faz a coluna ocupar o espaço disponível */
+    min-width: 300px;
+    margin-top: 0; /* Removido para o layout lado a lado */
+    padding-top: 0; /* Removido para o layout lado a lado */
+    border-top: none; /* Removido para o layout lado a lado */
+}
+
+.info-header-result {
+    background-color: #e9f5ff;
+    /* Fundo azul claro para o cabeçalho de info */
+    color: #0056b3;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.05em;
+    font-weight: 600;
+    border: 1px solid #cce5ff;
+}
+
+.info-header-result p {
+    margin: 0;
+}
+
+/* --- Cartões de Frete (Substituindo a Tabela) --- */
+.frete-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Responsivo, mostra em colunas */
+    gap: 20px;
+    /* Espaçamento entre os cartões */
+    margin-top: 20px;
+}
+
+.frete-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.frete-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+.card-item {
+    font-size: 1em;
+    color: #495057;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #f0f0f0;
+}
+
+.card-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.card-item strong {
+    color: #212529;
+    font-weight: 600;
+}
+
+.valor-frete {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #28a745;
+    /* Verde para destacar o valor */
+}
+
+.card-item .fas {
+    margin-left: 5px;
+    color: #6c757d;
+}
+
+/* --- Mensagens de Status --- */
+.loading {
+    color: #007bff;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+.loading .fas {
+    margin-right: 8px;
+}
+
+.error {
+    color: #dc3545;
+    background-color: #fde8e9;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.error .fas {
+    color: #dc3545;
+}
+
+/* --- Responsividade (AJUSTADA) --- */
+@media (max-width: 850px) {
+    /* Altera o layout de flex para coluna em telas menores */
+    .main-layout {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    /* Adiciona novamente a separação para a versão mobile */
+    .resultado-wrapper {
+        width: 100%;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px dashed #e0e0e0;
+    }
+
+    .container {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.4em;
+        margin-top: 0; /* Remove a margem superior do h2 na coluna do form em mobile */
+    }
+
+    button[type="submit"] {
+        font-size: 1em;
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 1.2em;
+    }
+
+    .info-header-result {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+}
+
     /* Aumenta um pouco a largura */
     background-color: #ffffff;
     padding: 40px;
